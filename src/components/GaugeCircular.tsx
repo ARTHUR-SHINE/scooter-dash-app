@@ -30,7 +30,8 @@ const GaugeCircular = ({
   const strokeWidth = size * 0.08;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference * 0.75;
+  const arcLength = circumference * 0.75;
+  const strokeDashoffset = arcLength - (percentage / 100) * arcLength;
   const rotation = 135;
 
   return (
