@@ -170,11 +170,20 @@ export const useBluetoothConnection = () => {
     }));
   }, []);
 
+  const resetOdometer = useCallback(() => {
+    setData(prev => ({
+      ...prev,
+      odometer: 0,
+    }));
+    localStorage.setItem('scooter_odometer', '0');
+  }, []);
+
   return {
     isConnected,
     isConnecting,
     data,
     connect,
     disconnect,
+    resetOdometer,
   };
 };

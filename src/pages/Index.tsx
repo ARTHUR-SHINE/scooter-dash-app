@@ -3,9 +3,10 @@ import GaugeCircular from "@/components/GaugeCircular";
 import BluetoothControl from "@/components/BluetoothControl";
 import { useBluetoothConnection } from "@/hooks/useBluetoothConnection";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const { isConnected, isConnecting, data, connect, disconnect } = useBluetoothConnection();
+  const { isConnected, isConnecting, data, connect, disconnect, resetOdometer } = useBluetoothConnection();
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -67,16 +68,26 @@ const Index = () => {
         </Card>
 
         {/* Odometer Card */}
-        {isConnected && (
-          <Card className="p-6 bg-card border-border">
-            <div className="text-center space-y-2">
+        <Card className="p-6 bg-card border-border">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1 text-center space-y-2">
               <h3 className="text-sm uppercase tracking-widest text-muted-foreground font-medium">Hodômetro</h3>
               <p className="text-4xl font-bold text-foreground tabular-nums">
                 {data.odometer.toFixed(2)} <span className="text-xl text-muted-foreground">km</span>
               </p>
             </div>
-          </Card>
-        )}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Reset</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={resetOdometer}
+              >
+                Resetar
+              </Button>
+            </div>
+          </div>
+        </Card>
 
         {/* Info Card */}
         {!isConnected && (

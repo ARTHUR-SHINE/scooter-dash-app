@@ -96,7 +96,10 @@ const GaugeCircular = ({
         
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-5xl font-bold text-foreground tabular-nums tracking-tight">
+          <div 
+            className="text-5xl font-bold tabular-nums tracking-tight transition-colors"
+            style={{ color: isDanger ? 'hsl(var(--gauge-danger))' : 'hsl(var(--foreground))' }}
+          >
             {Math.round(displayValue)}
           </div>
           <div className="text-sm text-muted-foreground uppercase tracking-wider mt-1">
