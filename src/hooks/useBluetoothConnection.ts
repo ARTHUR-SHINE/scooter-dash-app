@@ -11,14 +11,22 @@ export interface ScooterData {
 export const useBluetoothConnection = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [data, setData] = useState<ScooterData>({
-    rpm: 0,
-    acceleration: 0,
-    speed: 0,
-    odometer: 0,
+  const [data, setData] = useState<ScooterData>(() => {
+    const savedOdometer = localStorage.getItem('scooter_odometer');
+    return {
+      rpm: 0,
+      acceleration: 0,
+      speed: 0,
+      odometer: savedOdometer ? parseFloat(savedOdometer) : 0,
+    };
   });
   const [lastPosition, setLastPosition] = useState<GeolocationPosition | null>(null);
   const { toast } = useToast();
+
+  // Salvar hodômetro no localStorage sempre que mudar
+  useEffect(() => {
+    localStorage.setItem('scooter_odometer', data.odometer.toString());
+  }, [data.odometer]);
 
   // GPS para velocidade e hodômetro
   useEffect(() => {
@@ -154,12 +162,12 @@ export const useBluetoothConnection = () => {
   const disconnect = useCallback(() => {
     setIsConnected(false);
     setLastPosition(null);
-    setData({
+    setData(prev => ({
       rpm: 0,
       acceleration: 0,
       speed: 0,
-      odometer: 0,
-    });
+      odometer: prev.odometer, // Mantém o valor do hodômetro
+    }));
   }, []);
 
   return {
