@@ -7,6 +7,7 @@ interface GaugeCircularProps {
   label: string;
   unit: string;
   size?: number;
+  dangerThreshold?: number;
 }
 
 const GaugeCircular = ({ 
@@ -15,7 +16,8 @@ const GaugeCircular = ({
   min = 0, 
   label, 
   unit,
-  size = 200 
+  size = 200,
+  dangerThreshold
 }: GaugeCircularProps) => {
   const [displayValue, setDisplayValue] = useState(min);
   
@@ -33,6 +35,10 @@ const GaugeCircular = ({
   const arcLength = circumference * 0.75;
   const strokeDashoffset = arcLength - (percentage / 100) * arcLength;
   const rotation = 135;
+  
+  const isDanger = dangerThreshold !== undefined && displayValue > dangerThreshold;
+  const gradientId = isDanger ? 'gaugeGradientDanger' : 'gaugeGradient';
+  const glowColor = isDanger ? 'var(--gauge-glow-danger)' : 'var(--gauge-glow)';
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -62,7 +68,7 @@ const GaugeCircular = ({
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="url(#gaugeGradient)"
+            stroke={`url(#${gradientId})`}
             strokeWidth={strokeWidth}
             strokeDasharray={`${circumference * 0.75} ${circumference}`}
             strokeDashoffset={strokeDashoffset}
@@ -70,8 +76,8 @@ const GaugeCircular = ({
             style={{ 
               transform: `rotate(${rotation}deg)`, 
               transformOrigin: 'center',
-              transition: 'stroke-dashoffset 0.5s ease-out',
-              filter: 'drop-shadow(0 0 8px hsl(var(--gauge-glow)))'
+              transition: 'stroke-dashoffset 0.5s ease-out, stroke 0.3s ease-out',
+              filter: `drop-shadow(0 0 8px ${glowColor})`
             }}
           />
           
@@ -79,6 +85,10 @@ const GaugeCircular = ({
             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="hsl(var(--primary))" />
               <stop offset="100%" stopColor="hsl(var(--primary-glow))" />
+            </linearGradient>
+            <linearGradient id="gaugeGradientDanger" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="hsl(var(--gauge-danger))" />
+              <stop offset="100%" stopColor="hsl(var(--gauge-danger-glow))" />
             </linearGradient>
           </defs>
         </svg>

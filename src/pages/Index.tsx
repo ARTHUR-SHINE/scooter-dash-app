@@ -46,10 +46,11 @@ const Index = () => {
             <div className="flex justify-center">
               <GaugeCircular
                 value={data.rpm}
-                max={9999}
+                max={9000}
                 label="RPM"
                 unit="rpm"
                 size={220}
+                dangerThreshold={6000}
               />
             </div>
             
@@ -65,6 +66,18 @@ const Index = () => {
           </div>
         </Card>
 
+        {/* Odometer Card */}
+        {isConnected && (
+          <Card className="p-6 bg-card border-border">
+            <div className="text-center space-y-2">
+              <h3 className="text-sm uppercase tracking-widest text-muted-foreground font-medium">Hodômetro</h3>
+              <p className="text-4xl font-bold text-foreground tabular-nums">
+                {data.odometer.toFixed(2)} <span className="text-xl text-muted-foreground">km</span>
+              </p>
+            </div>
+          </Card>
+        )}
+
         {/* Info Card */}
         {!isConnected && (
           <Card className="p-6 bg-secondary/50 border-border">
@@ -72,7 +85,7 @@ const Index = () => {
               <h3 className="font-semibold text-foreground">Como usar</h3>
               <p className="text-sm text-muted-foreground">
                 Clique em "Conectar Arduino" para iniciar a conexão Bluetooth com sua Scooter.
-                Os dados serão atualizados em tempo real assim que conectado.
+                Os dados serão atualizados em tempo real assim que conectado. A velocidade será obtida via GPS.
               </p>
             </div>
           </Card>

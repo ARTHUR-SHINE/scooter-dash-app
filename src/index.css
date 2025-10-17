@@ -42,6 +42,8 @@ All colors MUST be HSL.
     --gauge-bg: 220 15% 10%;
     --gauge-track: 220 15% 18%;
     --gauge-glow: 142 76% 50%;
+    --gauge-danger: 0 84% 60%;
+    --gauge-danger-glow: 0 84% 70%;
     
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -79,6 +81,8 @@ All colors MUST be HSL.
     --gauge-bg: 220 15% 10%;
     --gauge-track: 220 15% 18%;
     --gauge-glow: 142 76% 50%;
+    --gauge-danger: 0 84% 60%;
+    --gauge-danger-glow: 0 84% 70%;
   }
 }
 
