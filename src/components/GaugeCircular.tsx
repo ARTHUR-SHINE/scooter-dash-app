@@ -28,13 +28,14 @@ const GaugeCircular = ({
     return () => clearTimeout(timer);
   }, [value]);
 
-  const percentage = ((displayValue - min) / (max - min)) * 100;
+  const percentage = Math.min(100, Math.max(0, ((displayValue - min) / (max - min)) * 100));
   const strokeWidth = size * 0.08;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const arcLength = circumference * 0.75;
-  const strokeDashoffset = arcLength - (percentage / 100) * arcLength;
-  const rotation = 135;
+  const offset = circumference * 0.125;
+  const progressLength = (percentage / 100) * arcLength;
+  const strokeDashoffset = -offset;
   
   const isDanger = dangerThreshold !== undefined && displayValue > dangerThreshold;
   const gradientId = isDanger ? 'gaugeGradientDanger' : 'gaugeGradient';
@@ -59,7 +60,7 @@ const GaugeCircular = ({
             strokeDasharray={`${circumference * 0.75} ${circumference}`}
             strokeDashoffset={-circumference * 0.125}
             strokeLinecap="round"
-            style={{ transform: `rotate(${rotation}deg)`, transformOrigin: 'center' }}
+            style={{ transform: `rotate(135deg)`, transformOrigin: 'center' }}
           />
           
           {/* Progress arc with glow */}
@@ -70,13 +71,13 @@ const GaugeCircular = ({
             fill="none"
             stroke={`url(#${gradientId})`}
             strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference * 0.75} ${circumference}`}
+            strokeDasharray={`${progressLength} ${circumference}`}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             style={{ 
-              transform: `rotate(${rotation}deg)`, 
+              transform: `rotate(135deg)`, 
               transformOrigin: 'center',
-              transition: 'stroke-dashoffset 0.5s ease-out, stroke 0.3s ease-out',
+              transition: 'stroke-dasharray 0.5s ease-out, stroke 0.3s ease-out',
               filter: `drop-shadow(0 0 8px ${glowColor})`
             }}
           />
