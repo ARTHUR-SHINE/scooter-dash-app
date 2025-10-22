@@ -40,6 +40,13 @@ const GaugeCircular = ({
   const isDanger = dangerThreshold !== undefined && displayValue > dangerThreshold;
   const gradientId = isDanger ? 'gaugeGradientDanger' : 'gaugeGradient';
   const glowColor = isDanger ? 'var(--gauge-glow-danger)' : 'var(--gauge-glow)';
+  
+  // Calculate danger zone arc (red zone from dangerThreshold to max)
+  const dangerZonePercentage = dangerThreshold !== undefined 
+    ? ((dangerThreshold - min) / (max - min)) * 100 
+    : 0;
+  const dangerZoneLength = ((100 - dangerZonePercentage) / 100) * arcLength;
+  const dangerZoneOffset = -offset - ((dangerZonePercentage / 100) * arcLength);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -62,6 +69,25 @@ const GaugeCircular = ({
             strokeLinecap="round"
             style={{ transform: `rotate(135deg)`, transformOrigin: 'center' }}
           />
+          
+          {/* Danger zone arc (fixed red zone) */}
+          {dangerThreshold !== undefined && (
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="hsl(var(--gauge-danger) / 0.3)"
+              strokeWidth={strokeWidth}
+              strokeDasharray={`${dangerZoneLength} ${circumference}`}
+              strokeDashoffset={dangerZoneOffset}
+              strokeLinecap="round"
+              style={{ 
+                transform: `rotate(135deg)`, 
+                transformOrigin: 'center'
+              }}
+            />
+          )}
           
           {/* Progress arc with glow */}
           <circle
