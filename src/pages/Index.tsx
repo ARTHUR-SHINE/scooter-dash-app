@@ -15,15 +15,7 @@ const Index = () => {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <header className="text-center space-y-4 pt-8 relative">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/history")}
-            className="gap-2 absolute left-0 top-8"
-          >
-            <History className="h-4 w-4" />
-            Histórico
-          </Button>
+        <header className="text-center space-y-4 pt-8">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
             Scooter Dashboard
           </h1>
@@ -80,7 +72,19 @@ const Index = () => {
 
         {/* Odometer Card */}
         <Card className="p-6 bg-card border-border">
-          <div className="flex items-center justify-between gap-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xs uppercase tracking-widest text-muted-foreground font-medium">Histórico</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate("/history")}
+                className="gap-2"
+              >
+                <History className="h-4 w-4" />
+                Ver
+              </Button>
+            </div>
             <div className="flex-1 text-center space-y-2">
               <h3 className="text-sm uppercase tracking-widest text-muted-foreground font-medium">Hodômetro</h3>
               <p className="text-4xl font-bold text-foreground tabular-nums">
