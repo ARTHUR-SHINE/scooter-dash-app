@@ -19,7 +19,7 @@ const Index = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/history")}
-            className="gap-2 absolute right-0 top-8"
+            className="gap-2 absolute left-0 top-8"
           >
             <History className="h-4 w-4" />
             Histórico

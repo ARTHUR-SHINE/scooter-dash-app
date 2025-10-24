@@ -63,11 +63,11 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Comparação de Viagens</h2>
       
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         {/* Distance Chart */}
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <h3 className="text-lg font-semibold mb-4">Distância Percorrida</h3>
-          <ChartContainer config={chartConfig} className="h-[300px]">
+          <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={distanceData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -81,9 +81,9 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
         </Card>
 
         {/* Speed Chart */}
-        <Card className="p-6">
+        <Card className="p-4 md:p-6">
           <h3 className="text-lg font-semibold mb-4">Velocidade</h3>
-          <ChartContainer config={chartConfig} className="h-[300px]">
+          <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={speedData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -98,9 +98,9 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
         </Card>
 
         {/* RPM Chart */}
-        <Card className="p-6 md:col-span-2">
+        <Card className="p-4 md:p-6 lg:col-span-2">
           <h3 className="text-lg font-semibold mb-4">RPM Média</h3>
-          <ChartContainer config={chartConfig} className="h-[300px]">
+          <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={rpmData}>
                 <CartesianGrid strokeDasharray="3 3" />
