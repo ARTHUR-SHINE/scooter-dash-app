@@ -4,15 +4,26 @@ import BluetoothControl from "@/components/BluetoothControl";
 import { useBluetoothConnection } from "@/hooks/useBluetoothConnection";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
   const { isConnected, isConnecting, data, connect, disconnect, resetOdometer } = useBluetoothConnection();
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <header className="text-center space-y-4 pt-8">
+        <header className="text-center space-y-4 pt-8 relative">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/history")}
+            className="gap-2 absolute right-0 top-8"
+          >
+            <History className="h-4 w-4" />
+            Histórico
+          </Button>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
             Scooter Dashboard
           </h1>

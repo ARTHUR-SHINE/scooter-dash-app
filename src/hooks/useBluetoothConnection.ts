@@ -8,6 +8,16 @@ export interface ScooterData {
   odometer: number;
 }
 
+export interface TripHistory {
+  id: string;
+  date: string;
+  distance: number;
+  avgSpeed: number;
+  maxSpeed: number;
+  avgRpm: number;
+  avgAcceleration: number;
+}
+
 export const useBluetoothConnection = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -21,6 +31,20 @@ export const useBluetoothConnection = () => {
     };
   });
   const [lastPosition, setLastPosition] = useState<GeolocationPosition | null>(null);
+  const [tripHistory, setTripHistory] = useState<TripHistory[]>(() => {
+    const saved = localStorage.getItem('trip_history');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  // Track stats for current trip
+  const [tripStats, setTripStats] = useState({
+    maxSpeed: 0,
+    speedSum: 0,
+    rpmSum: 0,
+    accelerationSum: 0,
+    dataPoints: 0,
+  });
+  
   const { toast } = useToast();
 
   // Salvar hodômetro no localStorage sempre que mudar
@@ -110,11 +134,25 @@ export const useBluetoothConnection = () => {
     if (!isConnected) return;
 
     const interval = setInterval(() => {
-      setData(prev => ({
-        ...prev,
-        rpm: Math.floor(Math.random() * 9000), // Limitado a 9000
-        acceleration: Math.floor(Math.random() * 100),
-      }));
+      setData(prev => {
+        const newRpm = Math.floor(Math.random() * 9000);
+        const newAcceleration = Math.floor(Math.random() * 100);
+        
+        // Update trip stats
+        setTripStats(stats => ({
+          maxSpeed: Math.max(stats.maxSpeed, prev.speed),
+          speedSum: stats.speedSum + prev.speed,
+          rpmSum: stats.rpmSum + newRpm,
+          accelerationSum: stats.accelerationSum + newAcceleration,
+          dataPoints: stats.dataPoints + 1,
+        }));
+        
+        return {
+          ...prev,
+          rpm: newRpm,
+          acceleration: newAcceleration,
+        };
+      });
     }, 1000);
 
     return () => clearInterval(interval);
@@ -171,19 +209,61 @@ export const useBluetoothConnection = () => {
   }, []);
 
   const resetOdometer = useCallback(() => {
+    // Save current trip to history before resetting
+    if (data.odometer > 0 && tripStats.dataPoints > 0) {
+      const newTrip: TripHistory = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        distance: data.odometer,
+        avgSpeed: tripStats.speedSum / tripStats.dataPoints,
+        maxSpeed: tripStats.maxSpeed,
+        avgRpm: tripStats.rpmSum / tripStats.dataPoints,
+        avgAcceleration: tripStats.accelerationSum / tripStats.dataPoints,
+      };
+      
+      const updatedHistory = [newTrip, ...tripHistory];
+      setTripHistory(updatedHistory);
+      localStorage.setItem('trip_history', JSON.stringify(updatedHistory));
+      
+      toast({
+        title: "Viagem salva!",
+        description: `${data.odometer.toFixed(2)} km registrados no histórico`,
+      });
+    }
+    
+    // Reset odometer and trip stats
     setData(prev => ({
       ...prev,
       odometer: 0,
     }));
+    setTripStats({
+      maxSpeed: 0,
+      speedSum: 0,
+      rpmSum: 0,
+      accelerationSum: 0,
+      dataPoints: 0,
+    });
     localStorage.setItem('scooter_odometer', '0');
-  }, []);
+  }, [data.odometer, tripStats, tripHistory, toast]);
+
+  const deleteTrip = useCallback((tripId: string) => {
+    const updatedHistory = tripHistory.filter(trip => trip.id !== tripId);
+    setTripHistory(updatedHistory);
+    localStorage.setItem('trip_history', JSON.stringify(updatedHistory));
+    toast({
+      title: "Viagem removida",
+      description: "O registro foi excluído do histórico",
+    });
+  }, [tripHistory, toast]);
 
   return {
     isConnected,
     isConnecting,
     data,
+    tripHistory,
     connect,
     disconnect,
     resetOdometer,
+    deleteTrip,
   };
 };

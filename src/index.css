@@ -39,6 +39,12 @@ All colors MUST be HSL.
 
     --radius: 1rem;
 
+    --chart-1: 142 76% 36%;
+    --chart-2: 197 37% 24%;
+    --chart-3: 43 74% 66%;
+    --chart-4: 27 87% 67%;
+    --chart-5: 12 76% 61%;
+
     --gauge-bg: 220 15% 10%;
     --gauge-track: 220 15% 18%;
     --gauge-glow: 142 76% 50%;
