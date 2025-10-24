@@ -21,22 +21,19 @@ interface TripComparisonProps {
 
 export const TripComparison = ({ trips }: TripComparisonProps) => {
   // Prepare data for charts
-  const distanceData = trips.map((trip, index) => ({
-    name: `Viagem ${index + 1}`,
-    date: new Date(trip.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+  const distanceData = trips.map((trip) => ({
+    name: trip.name,
     distance: parseFloat(trip.distance.toFixed(2)),
   }));
 
-  const speedData = trips.map((trip, index) => ({
-    name: `Viagem ${index + 1}`,
-    date: new Date(trip.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+  const speedData = trips.map((trip) => ({
+    name: trip.name,
     avgSpeed: Math.round(trip.avgSpeed),
     maxSpeed: Math.round(trip.maxSpeed),
   }));
 
-  const rpmData = trips.map((trip, index) => ({
-    name: `Viagem ${index + 1}`,
-    date: new Date(trip.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+  const rpmData = trips.map((trip) => ({
+    name: trip.name,
     avgRpm: Math.round(trip.avgRpm),
   }));
 
@@ -71,7 +68,7 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={distanceData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="name" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="distance" fill="var(--color-distance)" radius={[8, 8, 0, 0]} />
@@ -87,7 +84,7 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={speedData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="name" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="avgSpeed" fill="var(--color-avgSpeed)" radius={[8, 8, 0, 0]} />
@@ -104,7 +101,7 @@ export const TripComparison = ({ trips }: TripComparisonProps) => {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={rpmData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
+                <XAxis dataKey="name" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar dataKey="avgRpm" fill="var(--color-avgRpm)" radius={[8, 8, 0, 0]} />

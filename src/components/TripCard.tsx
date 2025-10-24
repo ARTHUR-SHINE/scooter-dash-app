@@ -24,11 +24,15 @@ export const TripCard = ({ trip, isSelected, onToggleSelect, onDelete }: TripCar
             checked={isSelected}
             onCheckedChange={() => onToggleSelect(trip.id)}
           />
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <div>
-              <p className="text-sm font-medium">{formattedDate}</p>
-              <p className="text-xs">{formattedTime}</p>
+          <div className="space-y-1">
+            <p className="text-lg font-semibold">{trip.name}</p>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-3 w-3" />
+              <div className="text-xs">
+                <span>{formattedDate}</span>
+                <span className="mx-1">•</span>
+                <span>{formattedTime}</span>
+              </div>
             </div>
           </div>
         </div>

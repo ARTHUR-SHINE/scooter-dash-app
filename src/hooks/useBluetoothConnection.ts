@@ -10,6 +10,7 @@ export interface ScooterData {
 
 export interface TripHistory {
   id: string;
+  name: string;
   date: string;
   distance: number;
   avgSpeed: number;
@@ -211,8 +212,10 @@ export const useBluetoothConnection = () => {
   const resetOdometer = useCallback(() => {
     // Save current trip to history before resetting
     if (data.odometer > 0 && tripStats.dataPoints > 0) {
+      const tripNumber = tripHistory.length + 1;
       const newTrip: TripHistory = {
         id: Date.now().toString(),
+        name: `Trajeto ${tripNumber}`,
         date: new Date().toISOString(),
         distance: data.odometer,
         avgSpeed: tripStats.speedSum / tripStats.dataPoints,
