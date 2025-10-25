@@ -218,7 +218,7 @@ export const useBluetoothConnection = () => {
           
           try {
             const parsedData = JSON.parse(jsonString);
-            // parsedData = {"rpm": 3500, "speed": 45, "acceleration": 78}
+            // parsedData = {"rpm": 3500, "acceleration": 78}
             
             setData(prev => ({
               ...prev,
@@ -230,13 +230,13 @@ export const useBluetoothConnection = () => {
             console.error('Erro ao fazer parse do JSON:', e);
           }
           
-          // OPÇÃO 2: Se Arduino enviar bytes separados por vírgula "3500,45,78"
+          // OPÇÃO 2: Se Arduino enviar bytes separados por vírgula "3500,78"
           // const text = decoder.decode(value);
           // const values = text.split(',');
           // setData(prev => ({
           //   ...prev,
           //   rpm: parseInt(values[0]) || 0,
-          //   acceleration: parseInt(values[2]) || 0,
+          //   acceleration: parseInt(values[1]) || 0,
           // }));
           
           // OPÇÃO 3: Se Arduino enviar bytes binários
@@ -269,6 +269,58 @@ export const useBluetoothConnection = () => {
       setIsConnecting(false);
     }
   }, [toast]);
+
+  // Função para enviar dados para o Arduino
+  const sendToArduino = useCallback(async (message: string) => {
+    if (!isConnected) {
+      toast({
+        title: "Não conectado",
+        description: "Conecte-se ao Arduino primeiro",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // IMPLEMENTAÇÃO REAL COM BLUETOOTH:
+      /*
+      import { BleClient } from '@capacitor-community/bluetooth-le';
+      
+      const SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+      const CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+      
+      // Converter string para bytes
+      const encoder = new TextEncoder();
+      const data = encoder.encode(message + '\n'); // Adiciona quebra de linha
+      
+      // Enviar para Arduino
+      await BleClient.write(
+        deviceId, // Você precisa armazenar o deviceId quando conectar
+        SERVICE_UUID,
+        CHARACTERISTIC_UUID,
+        data
+      );
+      
+      toast({
+        title: "Mensagem enviada",
+        description: `Enviado: ${message}`,
+      });
+      */
+      
+      // SIMULAÇÃO
+      console.log('Enviando para Arduino:', message);
+      toast({
+        title: "Mensagem enviada (simulação)",
+        description: `Enviado: ${message}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao enviar",
+        description: "Não foi possível enviar dados para o Arduino",
+        variant: "destructive",
+      });
+    }
+  }, [isConnected, toast]);
 
   const disconnect = useCallback(() => {
     setIsConnected(false);
@@ -340,5 +392,6 @@ export const useBluetoothConnection = () => {
     disconnect,
     resetOdometer,
     deleteTrip,
+    sendToArduino,
   };
 };

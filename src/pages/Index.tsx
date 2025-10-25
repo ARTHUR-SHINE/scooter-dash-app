@@ -1,6 +1,7 @@
 import { useState } from "react";
 import GaugeCircular from "@/components/GaugeCircular";
 import BluetoothControl from "@/components/BluetoothControl";
+import ArduinoTestPanel from "@/components/ArduinoTestPanel";
 import { useBluetoothConnection } from "@/hooks/useBluetoothConnection";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { isConnected, isConnecting, data, connect, disconnect, resetOdometer } = useBluetoothConnection();
+  const { isConnected, isConnecting, data, connect, disconnect, resetOdometer, sendToArduino } = useBluetoothConnection();
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -103,6 +104,14 @@ const Index = () => {
             </div>
           </div>
         </Card>
+
+        {/* Test Panel */}
+        <div className="flex justify-center">
+          <ArduinoTestPanel 
+            onSendMessage={sendToArduino}
+            isConnected={isConnected}
+          />
+        </div>
 
         {/* Info Card */}
         {!isConnected && (
