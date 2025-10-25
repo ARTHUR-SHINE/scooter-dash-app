@@ -1,6 +1,56 @@
-// EXEMPLO DE CÓDIGO ARDUINO PARA ENVIAR DADOS VIA BLUETOOTH
-// Este arquivo mostra como o Arduino deve enviar os dados
+// ========================================
+// CÓDIGO DE TESTE - VALORES FIXOS
+// ========================================
+// Use este código para testar se o app está recebendo os dados corretamente
+// Os valores são FIXOS para facilitar a identificação
 
+#include <SoftwareSerial.h>
+
+// Configuração Bluetooth (HC-05 ou similar)
+SoftwareSerial bluetooth(10, 11); // RX, TX
+
+void setup() {
+  Serial.begin(9600);
+  bluetooth.begin(9600);
+  
+  Serial.println("Arduino iniciado - Modo TESTE com valores fixos");
+  bluetooth.println("Arduino conectado!");
+}
+
+void loop() {
+  // VALORES FIXOS PARA TESTE
+  int testRPM = 5000;          // RPM fixo: 5000
+  int testAcceleration = 75;   // Aceleração fixa: 75
+  
+  // Enviar dados em formato JSON a cada 1 segundo
+  String jsonData = "{\"rpm\":" + String(testRPM) + 
+                   ",\"acceleration\":" + String(testAcceleration) + "}";
+  
+  bluetooth.println(jsonData);
+  Serial.println(jsonData); // Também mostra no monitor serial do Arduino
+  
+  delay(1000); // Enviar a cada 1 segundo
+}
+
+// ========================================
+// RESULTADO ESPERADO NO APP:
+// ========================================
+// RPM: sempre mostrará 5000
+// Aceleração: sempre mostrará 75
+// 
+// Se você ver esses valores no app, significa que:
+// ✓ A conexão Bluetooth está funcionando
+// ✓ O app está recebendo os dados
+// ✓ O parsing do JSON está correto
+// ========================================
+
+
+// ========================================
+// CÓDIGO REAL - COM SENSORES
+// ========================================
+// Depois de testar, use este código para ler sensores reais
+
+/*
 #include <SoftwareSerial.h>
 
 // Configuração Bluetooth (HC-05 ou similar)
@@ -68,6 +118,7 @@ void loop() {
 void countRPM() {
   rpmCount++;
 }
+*/
 
 /*
 RESUMO - Como funciona a identificação dos dados:
