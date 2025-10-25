@@ -176,10 +176,82 @@ export const useBluetoothConnection = () => {
     setIsConnecting(true);
     
     try {
-      // Aqui seria implementada a lógica real de conexão Bluetooth
-      // usando @capacitor-community/bluetooth-le
+      // IMPLEMENTAÇÃO REAL COM BLUETOOTH:
+      // Descomentar este código quando testar com Arduino real
       
-      // Simulação de delay de conexão
+      /*
+      import { BleClient } from '@capacitor-community/bluetooth-le';
+      
+      // 1. Inicializar BLE
+      await BleClient.initialize();
+      
+      // 2. Pedir permissões (Android)
+      await BleClient.requestDevice({
+        // Filtrar apenas dispositivos com nome específico do Arduino
+        namePrefix: 'Arduino',
+        // Ou usar UUID do serviço específico
+        // services: ['0000ffe0-0000-1000-8000-00805f9b34fb']
+      });
+      
+      // 3. Conectar ao dispositivo
+      const device = await BleClient.requestDevice();
+      await BleClient.connect(device.deviceId, (deviceId) => {
+        console.log('Desconectado do dispositivo:', deviceId);
+        setIsConnected(false);
+      });
+      
+      // 4. Descobrir serviços (UUID do serviço BLE do Arduino)
+      const SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
+      const CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+      
+      // 5. Ler dados continuamente (notificações)
+      await BleClient.startNotifications(
+        device.deviceId,
+        SERVICE_UUID,
+        CHARACTERISTIC_UUID,
+        (value) => {
+          // value é um DataView com os bytes recebidos
+          
+          // OPÇÃO 1: Se Arduino enviar JSON string
+          const decoder = new TextDecoder('utf-8');
+          const jsonString = decoder.decode(value);
+          
+          try {
+            const parsedData = JSON.parse(jsonString);
+            // parsedData = {"rpm": 3500, "speed": 45, "acceleration": 78}
+            
+            setData(prev => ({
+              ...prev,
+              rpm: parsedData.rpm || 0,
+              acceleration: parsedData.acceleration || 0,
+              // speed continua vindo do GPS
+            }));
+          } catch (e) {
+            console.error('Erro ao fazer parse do JSON:', e);
+          }
+          
+          // OPÇÃO 2: Se Arduino enviar bytes separados por vírgula "3500,45,78"
+          // const text = decoder.decode(value);
+          // const values = text.split(',');
+          // setData(prev => ({
+          //   ...prev,
+          //   rpm: parseInt(values[0]) || 0,
+          //   acceleration: parseInt(values[2]) || 0,
+          // }));
+          
+          // OPÇÃO 3: Se Arduino enviar bytes binários
+          // const rpm = value.getUint16(0, true); // 2 bytes para RPM
+          // const acceleration = value.getUint8(2); // 1 byte para aceleração
+          // setData(prev => ({
+          //   ...prev,
+          //   rpm,
+          //   acceleration,
+          // }));
+        }
+      );
+      */
+      
+      // SIMULAÇÃO (remover quando usar Bluetooth real)
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setIsConnected(true);
