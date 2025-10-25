@@ -1,73 +1,47 @@
-// ========================================
-// CÓDIGO DE TESTE - VALORES FIXOS
-// ========================================
+#include <SoftwareSerial.h>
 
-// ┌─────────────────────────────────────────────────────────────┐
-// │  OPÇÃO 1: Bluetooth nos pinos 0 (RX) e 1 (TX)              │
-// │  (Pinos de serial FÍSICA do Arduino Uno)                    │
-// └─────────────────────────────────────────────────────────────┘
+// RX = 10, TX = 11
+SoftwareSerial BT(10, 11);
+
+unsigned long lastTime = 0;
 
 void setup() {
-  Serial.begin(9600); // Pinos 0 (RX) e 1 (TX) - Comunicação direta
-  Serial.println("Arduino iniciado - Modo TESTE");
+  Serial.begin(9600);   // Monitor Serial do PC
+  BT.begin(9600);       // HC-06
+  Serial.println("Arduino iniciado - Envio de dados a cada 1s");
 }
 
 void loop() {
-  // VALORES FIXOS PARA TESTE
-  int testRPM = 5000;          // RPM fixo: 5000
-  int testAcceleration = 75;   // Aceleração fixa: 75
-  
-  // Enviar dados em formato JSON
-  String jsonData = "{\"rpm\":" + String(testRPM) + 
-                   ",\"acceleration\":" + String(testAcceleration) + "}";
-  
-  Serial.println(jsonData); // Envia pelo Bluetooth nos pinos 0 e 1
-  
-  delay(1000); // Enviar a cada 1 segundo
-}
+  // --- Receber dados do app e ecoar ---
+  while (BT.available()) {
+    char c = BT.read();
+    BT.write(c);        // ecoa de volta para o app
+    Serial.write(c);    // mostra no monitor serial
+  }
 
-// ATENÇÃO: Ao usar os pinos 0 e 1, desconecte o Bluetooth antes de 
-// fazer upload do código, senão vai dar erro!
+  // --- Envio de dados a cada 1 segundo ---
+  if (millis() - lastTime >= 1000) {
+    lastTime = millis();
+
+    int rpm = 3500;
+    int aceleracao = 78;
+
+    // Envia dados em formato JSON (compatível com o app)
+    String jsonData = "{\"rpm\":" + String(rpm) + 
+                     ",\"acceleration\":" + String(aceleracao) + "}";
+    
+    BT.println(jsonData);      // Envia para Bluetooth
+    Serial.println(jsonData);  // Mostra no Monitor Serial
+  }
+}
 
 
 // ========================================
 // RESULTADO ESPERADO NO APP:
 // ========================================
-// RPM: sempre mostrará 5000
-// Aceleração: sempre mostrará 75
+// RPM: sempre mostrará 3500
+// Aceleração: sempre mostrará 78
 // ========================================
-
-
-/*
-// ┌─────────────────────────────────────────────────────────────┐
-// │  OPÇÃO 2: Bluetooth em OUTROS pinos (ex: 10 e 11)          │
-// │  (Usar se quiser debugar no Monitor Serial)                 │
-// └─────────────────────────────────────────────────────────────┘
-
-#include <SoftwareSerial.h>
-
-SoftwareSerial bluetooth(10, 11); // RX=10, TX=11 (ou outros pinos)
-
-void setup() {
-  Serial.begin(9600);      // Para ver mensagens no Monitor Serial (debug)
-  bluetooth.begin(9600);   // Para comunicação com Bluetooth
-  
-  Serial.println("Arduino iniciado - Modo TESTE");
-}
-
-void loop() {
-  int testRPM = 5000;
-  int testAcceleration = 75;
-  
-  String jsonData = "{\"rpm\":" + String(testRPM) + 
-                   ",\"acceleration\":" + String(testAcceleration) + "}";
-  
-  bluetooth.println(jsonData);  // Envia para Bluetooth (pinos 10 e 11)
-  Serial.println(jsonData);     // Mostra no Monitor Serial (debug)
-  
-  delay(1000);
-}
-*/
 
 
 /*
