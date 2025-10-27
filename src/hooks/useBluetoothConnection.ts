@@ -176,79 +176,89 @@ export const useBluetoothConnection = () => {
     setIsConnecting(true);
     
     try {
-      // IMPLEMENTAÇÃO REAL COM BLUETOOTH:
-      // Descomentar este código quando testar com Arduino real
+      // CONEXÃO COM HC-06 (Bluetooth Classic)
+      // Descomentar quando testar com HC-06 real
       
       /*
-      import { BleClient } from '@capacitor-community/bluetooth-le';
+      // @ts-ignore - cordova-plugin-bluetooth-serial
+      const bluetoothSerial = window.bluetoothSerial;
       
-      // 1. Inicializar BLE
-      await BleClient.initialize();
+      if (!bluetoothSerial) {
+        throw new Error('Bluetooth Serial não disponível');
+      }
       
-      // 2. Pedir permissões (Android)
-      await BleClient.requestDevice({
-        // Filtrar apenas dispositivos com nome específico do Arduino
-        namePrefix: 'Arduino',
-        // Ou usar UUID do serviço específico
-        // services: ['0000ffe0-0000-1000-8000-00805f9b34fb']
+      // 1. Verificar se Bluetooth está habilitado
+      const isEnabled = await new Promise((resolve) => {
+        bluetoothSerial.isEnabled(
+          () => resolve(true),
+          () => resolve(false)
+        );
       });
       
-      // 3. Conectar ao dispositivo
-      const device = await BleClient.requestDevice();
-      await BleClient.connect(device.deviceId, (deviceId) => {
-        console.log('Desconectado do dispositivo:', deviceId);
+      if (!isEnabled) {
+        // Pedir para habilitar Bluetooth
+        await new Promise((resolve, reject) => {
+          bluetoothSerial.enable(resolve, reject);
+        });
+      }
+      
+      // 2. Listar dispositivos pareados
+      const devices = await new Promise((resolve, reject) => {
+        bluetoothSerial.list(resolve, reject);
+      });
+      
+      // 3. Procurar HC-06 na lista (ajuste o nome se necessário)
+      const hc06 = devices.find((device: any) => 
+        device.name.includes('HC-06') || device.name.includes('HC-05')
+      );
+      
+      if (!hc06) {
+        throw new Error('HC-06 não encontrado. Pareie o dispositivo primeiro nas configurações do celular.');
+      }
+      
+      // 4. Conectar ao HC-06
+      await new Promise((resolve, reject) => {
+        bluetoothSerial.connect(
+          hc06.address,
+          () => {
+            console.log('Conectado ao HC-06:', hc06.name);
+            resolve(true);
+          },
+          (error: any) => {
+            console.error('Erro ao conectar:', error);
+            reject(error);
+          }
+        );
+      });
+      
+      // 5. Configurar leitura de dados
+      bluetoothSerial.subscribe('\n', (data: string) => {
+        try {
+          // Remove espaços em branco
+          const cleanData = data.trim();
+          
+          // Tentar fazer parse do JSON
+          const parsedData = JSON.parse(cleanData);
+          
+          setData(prev => ({
+            ...prev,
+            rpm: parsedData.rpm || prev.rpm,
+            acceleration: parsedData.acceleration || prev.acceleration,
+          }));
+        } catch (e) {
+          console.error('Erro ao fazer parse do JSON:', e, 'Data:', data);
+        }
+      }, (error: any) => {
+        console.error('Erro na subscription:', error);
+      });
+      
+      // 6. Callback quando desconectar
+      bluetoothSerial.subscribeRawData((data: any) => {
+        console.log('Dados recebidos (raw):', data);
+      }, (error: any) => {
+        console.error('Desconectado:', error);
         setIsConnected(false);
       });
-      
-      // 4. Descobrir serviços (UUID do serviço BLE do Arduino)
-      const SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
-      const CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
-      
-      // 5. Ler dados continuamente (notificações)
-      await BleClient.startNotifications(
-        device.deviceId,
-        SERVICE_UUID,
-        CHARACTERISTIC_UUID,
-        (value) => {
-          // value é um DataView com os bytes recebidos
-          
-          // OPÇÃO 1: Se Arduino enviar JSON string
-          const decoder = new TextDecoder('utf-8');
-          const jsonString = decoder.decode(value);
-          
-          try {
-            const parsedData = JSON.parse(jsonString);
-            // parsedData = {"rpm": 3500, "acceleration": 78}
-            
-            setData(prev => ({
-              ...prev,
-              rpm: parsedData.rpm || 0,
-              acceleration: parsedData.acceleration || 0,
-              // speed continua vindo do GPS
-            }));
-          } catch (e) {
-            console.error('Erro ao fazer parse do JSON:', e);
-          }
-          
-          // OPÇÃO 2: Se Arduino enviar bytes separados por vírgula "3500,78"
-          // const text = decoder.decode(value);
-          // const values = text.split(',');
-          // setData(prev => ({
-          //   ...prev,
-          //   rpm: parseInt(values[0]) || 0,
-          //   acceleration: parseInt(values[1]) || 0,
-          // }));
-          
-          // OPÇÃO 3: Se Arduino enviar bytes binários
-          // const rpm = value.getUint16(0, true); // 2 bytes para RPM
-          // const acceleration = value.getUint8(2); // 1 byte para aceleração
-          // setData(prev => ({
-          //   ...prev,
-          //   rpm,
-          //   acceleration,
-          // }));
-        }
-      );
       */
       
       // SIMULAÇÃO (remover quando usar Bluetooth real)
@@ -257,12 +267,12 @@ export const useBluetoothConnection = () => {
       setIsConnected(true);
       toast({
         title: "Conectado!",
-        description: "Arduino conectado com sucesso",
+        description: "HC-06 conectado com sucesso",
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erro na conexão",
-        description: "Não foi possível conectar ao Arduino",
+        description: error.message || "Não foi possível conectar ao HC-06",
         variant: "destructive",
       });
     } finally {
@@ -270,36 +280,39 @@ export const useBluetoothConnection = () => {
     }
   }, [toast]);
 
-  // Função para enviar dados para o Arduino
+  // Função para enviar dados para o HC-06
   const sendToArduino = useCallback(async (message: string) => {
     if (!isConnected) {
       toast({
         title: "Não conectado",
-        description: "Conecte-se ao Arduino primeiro",
+        description: "Conecte-se ao HC-06 primeiro",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      // IMPLEMENTAÇÃO REAL COM BLUETOOTH:
+      // ENVIO PARA HC-06 (Bluetooth Classic):
       /*
-      import { BleClient } from '@capacitor-community/bluetooth-le';
+      // @ts-ignore
+      const bluetoothSerial = window.bluetoothSerial;
       
-      const SERVICE_UUID = '0000ffe0-0000-1000-8000-00805f9b34fb';
-      const CHARACTERISTIC_UUID = '0000ffe1-0000-1000-8000-00805f9b34fb';
+      // Adiciona quebra de linha ao final (importante para o Arduino reconhecer)
+      const dataToSend = message + '\n';
       
-      // Converter string para bytes
-      const encoder = new TextEncoder();
-      const data = encoder.encode(message + '\n'); // Adiciona quebra de linha
-      
-      // Enviar para Arduino
-      await BleClient.write(
-        deviceId, // Você precisa armazenar o deviceId quando conectar
-        SERVICE_UUID,
-        CHARACTERISTIC_UUID,
-        data
-      );
+      await new Promise((resolve, reject) => {
+        bluetoothSerial.write(
+          dataToSend,
+          () => {
+            console.log('Enviado para HC-06:', message);
+            resolve(true);
+          },
+          (error: any) => {
+            console.error('Erro ao enviar:', error);
+            reject(error);
+          }
+        );
+      });
       
       toast({
         title: "Mensagem enviada",
@@ -308,7 +321,7 @@ export const useBluetoothConnection = () => {
       */
       
       // SIMULAÇÃO
-      console.log('Enviando para Arduino:', message);
+      console.log('Enviando para HC-06:', message);
       toast({
         title: "Mensagem enviada (simulação)",
         description: `Enviado: ${message}`,
@@ -316,7 +329,7 @@ export const useBluetoothConnection = () => {
     } catch (error) {
       toast({
         title: "Erro ao enviar",
-        description: "Não foi possível enviar dados para o Arduino",
+        description: "Não foi possível enviar dados para o HC-06",
         variant: "destructive",
       });
     }
