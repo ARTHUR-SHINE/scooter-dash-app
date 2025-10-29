@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Calendar, Gauge, Zap } from "lucide-react";
+import { Trash2, Calendar, Gauge, Zap, Clock } from "lucide-react";
 import { TripHistory } from "@/hooks/useBluetoothConnection";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -15,6 +15,14 @@ export const TripCard = ({ trip, isSelected, onToggleSelect, onDelete }: TripCar
   const date = new Date(trip.date);
   const formattedDate = date.toLocaleDateString('pt-BR');
   const formattedTime = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  
+  // Formatar duração
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <Card className={`p-6 space-y-4 transition-all ${isSelected ? 'ring-2 ring-primary' : ''}`}>
@@ -55,9 +63,16 @@ export const TripCard = ({ trip, isSelected, onToggleSelect, onDelete }: TripCar
         
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground flex items-center gap-1">
+            <Clock className="h-3 w-3" /> Duração
+          </p>
+          <p className="text-2xl font-bold">{formatDuration(trip.duration || 0)}</p>
+        </div>
+        
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Gauge className="h-3 w-3" /> Vel. Máxima
           </p>
-          <p className="text-2xl font-bold">{Math.round(trip.maxSpeed)} km/h</p>
+          <p className="text-xl font-semibold">{Math.round(trip.maxSpeed)} km/h</p>
         </div>
         
         <div className="space-y-1">
@@ -74,7 +89,7 @@ export const TripCard = ({ trip, isSelected, onToggleSelect, onDelete }: TripCar
           <p className="text-xl font-semibold">{Math.round(trip.avgRpm)}</p>
         </div>
         
-        <div className="space-y-1 col-span-2">
+        <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Aceleração Média</p>
           <p className="text-xl font-semibold">{Math.round(trip.avgAcceleration)}%</p>
         </div>

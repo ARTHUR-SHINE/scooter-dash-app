@@ -7,10 +7,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function exportTripsToCSV(trips: TripHistory[]) {
-  const headers = ["Nome", "Data", "Distância (km)", "Velocidade Média (km/h)", "Velocidade Máxima (km/h)", "RPM Média", "Aceleração Média"];
+  const formatDuration = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const headers = ["Nome", "Data", "Duração (HH:MM:SS)", "Distância (km)", "Velocidade Média (km/h)", "Velocidade Máxima (km/h)", "RPM Média", "Aceleração Média"];
   const rows = trips.map(trip => [
     trip.name,
     new Date(trip.date).toLocaleString('pt-BR'),
+    formatDuration(trip.duration || 0),
     trip.distance.toFixed(2),
     trip.avgSpeed.toFixed(2),
     trip.maxSpeed.toFixed(2),

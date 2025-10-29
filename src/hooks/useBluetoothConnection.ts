@@ -17,6 +17,7 @@ export interface TripHistory {
   maxSpeed: number;
   avgRpm: number;
   avgAcceleration: number;
+  duration: number; // duração em segundos
 }
 
 export const useBluetoothConnection = () => {
@@ -44,6 +45,7 @@ export const useBluetoothConnection = () => {
     rpmSum: 0,
     accelerationSum: 0,
     dataPoints: 0,
+    startTime: 0, // timestamp de início do trajeto
   });
   
   const { toast } = useToast();
@@ -146,6 +148,7 @@ export const useBluetoothConnection = () => {
           rpmSum: stats.rpmSum + newRpm,
           accelerationSum: stats.accelerationSum + newAcceleration,
           dataPoints: stats.dataPoints + 1,
+          startTime: stats.startTime,
         }));
         
         return {
@@ -265,6 +268,13 @@ export const useBluetoothConnection = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       setIsConnected(true);
+      
+      // Iniciar contagem de tempo do trajeto
+      setTripStats(prev => ({
+        ...prev,
+        startTime: Date.now(),
+      }));
+      
       toast({
         title: "Conectado!",
         description: "HC-06 conectado com sucesso",
@@ -350,6 +360,10 @@ export const useBluetoothConnection = () => {
     // Save current trip to history before resetting
     if (data.odometer > 0 && tripStats.dataPoints > 0) {
       const tripNumber = tripHistory.length + 1;
+      const duration = tripStats.startTime > 0 
+        ? Math.floor((Date.now() - tripStats.startTime) / 1000) 
+        : 0;
+      
       const newTrip: TripHistory = {
         id: Date.now().toString(),
         name: `Trajeto ${tripNumber}`,
@@ -359,6 +373,7 @@ export const useBluetoothConnection = () => {
         maxSpeed: tripStats.maxSpeed,
         avgRpm: tripStats.rpmSum / tripStats.dataPoints,
         avgAcceleration: tripStats.accelerationSum / tripStats.dataPoints,
+        duration: duration,
       };
       
       const updatedHistory = [newTrip, ...tripHistory];
@@ -382,6 +397,7 @@ export const useBluetoothConnection = () => {
       rpmSum: 0,
       accelerationSum: 0,
       dataPoints: 0,
+      startTime: Date.now(), // Reinicia contador de tempo
     });
     localStorage.setItem('scooter_odometer', '0');
   }, [data.odometer, tripStats, tripHistory, toast]);
