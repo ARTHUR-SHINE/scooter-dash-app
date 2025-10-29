@@ -55,41 +55,41 @@ export const TripCard = ({ trip, isSelected, onToggleSelect, onDelete }: TripCar
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1">
+      <div className="grid grid-cols-2 gap-6">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Distância</p>
           <p className="text-2xl font-bold">{trip.distance.toFixed(2)} km</p>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Clock className="h-3 w-3" /> Duração
           </p>
           <p className="text-2xl font-bold">{formatDuration(trip.duration || 0)}</p>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Gauge className="h-3 w-3" /> Vel. Máxima
           </p>
           <p className="text-xl font-semibold">{Math.round(trip.maxSpeed)} km/h</p>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Gauge className="h-3 w-3" /> Vel. Média
           </p>
           <p className="text-xl font-semibold">{Math.round(trip.avgSpeed)} km/h</p>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Zap className="h-3 w-3" /> RPM Média
           </p>
           <p className="text-xl font-semibold">{Math.round(trip.avgRpm)}</p>
         </div>
         
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Aceleração Média</p>
           <p className="text-xl font-semibold">{Math.round(trip.avgAcceleration)}%</p>
         </div>

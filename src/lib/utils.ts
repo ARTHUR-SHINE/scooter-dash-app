@@ -14,7 +14,7 @@ export function exportTripsToCSV(trips: TripHistory[]) {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
   
-  const headers = ["Nome", "Data", "Duração (HH:MM:SS)", "Distância (km)", "Velocidade Média (km/h)", "Velocidade Máxima (km/h)", "RPM Média", "Aceleração Média"];
+  const headers = ["Nome", "Data", "Duração", "Distância (km)", "Velocidade Média (km/h)", "Velocidade Máxima (km/h)", "RPM Média", "Aceleração Média"];
   const rows = trips.map(trip => [
     trip.name,
     new Date(trip.date).toLocaleString('pt-BR'),
