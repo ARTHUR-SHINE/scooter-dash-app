@@ -27,8 +27,8 @@ export function exportTripsToCSV(trips: TripHistory[]) {
   ]);
 
   const csvContent = [
-    headers.join(","),
-    ...rows.map(row => row.join(","))
+    headers.join(";"),
+    ...rows.map(row => row.join(";"))
   ].join("\n");
 
   const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
