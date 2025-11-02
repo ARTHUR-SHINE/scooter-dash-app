@@ -17,7 +17,7 @@ export function exportTripsToCSV(trips: TripHistory[]) {
   const headers = ["Nome", "Data", "Duração", "Distância (km)", "Velocidade Média (km/h)", "Velocidade Máxima (km/h)", "RPM Média", "Aceleração Média"];
   const rows = trips.map(trip => [
     trip.name,
-    new Date(trip.date).toLocaleString('pt-BR'),
+    new Date(trip.date).toLocaleDateString('pt-BR'),
     formatDuration(trip.duration || 0),
     trip.distance.toFixed(2),
     trip.avgSpeed.toFixed(2),
