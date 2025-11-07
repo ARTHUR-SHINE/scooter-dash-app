@@ -162,6 +162,32 @@ export const useBluetoothConnection = () => {
     return () => clearInterval(interval);
   }, [isConnected]);
 
+  // Enviar velocidade GPS para o Arduino via HC-06
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const interval = setInterval(() => {
+      const speedData = JSON.stringify({ speed: data.speed });
+      
+      // ENVIO REAL PARA HC-06 (descomentar quando testar com dispositivo real)
+      /*
+      // @ts-ignore
+      if (window.bluetoothSerial) {
+        window.bluetoothSerial.write(
+          speedData + '\n',
+          () => console.log('Velocidade enviada para Arduino:', speedData),
+          (error: any) => console.error('Erro ao enviar velocidade:', error)
+        );
+      }
+      */
+      
+      // SIMULAÇÃO (remover quando usar Bluetooth real)
+      console.log('Enviando velocidade para Arduino:', speedData);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isConnected, data.speed]);
+
   // Função para calcular distância entre dois pontos (Haversine)
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
     const R = 6371; // Raio da Terra em km
