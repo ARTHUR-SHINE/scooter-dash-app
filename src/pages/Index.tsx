@@ -41,7 +41,7 @@ const Index = () => {
             <div className="flex justify-center">
               <GaugeCircular
                 value={data.speed}
-                max={72}
+                max={99}
                 label="Velocidade"
                 unit="km/h"
                 size={220}
