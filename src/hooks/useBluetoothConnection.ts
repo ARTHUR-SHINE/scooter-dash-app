@@ -113,7 +113,7 @@ export const useBluetoothConnection = () => {
       
       // Se GPS não está disponível ou sem atualização por 3 segundos, simular
       if (!gpsAvailable || timeSinceLastGPS > 3000) {
-        const simulatedSpeed = Math.floor(Math.random() * 72);
+        const simulatedSpeed = Math.floor(Math.random() * 99);
         const simulatedDistance = (simulatedSpeed / 3600); // km percorridos em 1 segundo
         
         setData(prev => ({
