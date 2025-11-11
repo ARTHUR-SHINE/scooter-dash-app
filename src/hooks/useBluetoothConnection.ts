@@ -132,34 +132,84 @@ export const useBluetoothConnection = () => {
     };
   }, [isConnected, lastPosition, toast]);
 
-  // Simular recebimento de dados do Arduino para RPM e aceleração
+  // Receber dados do Arduino (RPM e aceleração) via HC-06
   useEffect(() => {
     if (!isConnected) return;
 
-    const interval = setInterval(() => {
-      setData(prev => {
-        const newRpm = Math.floor(Math.random() * 9000);
-        const newAcceleration = Math.floor(Math.random() * 100);
-        
-        // Update trip stats
-        setTripStats(stats => ({
-          maxSpeed: Math.max(stats.maxSpeed, prev.speed),
-          speedSum: stats.speedSum + prev.speed,
-          rpmSum: stats.rpmSum + newRpm,
-          accelerationSum: stats.accelerationSum + newAcceleration,
-          dataPoints: stats.dataPoints + 1,
-          startTime: stats.startTime,
-        }));
-        
-        return {
-          ...prev,
-          rpm: newRpm,
-          acceleration: newAcceleration,
-        };
+    // RECEPÇÃO REAL DO HC-06
+    // @ts-ignore
+    if (window.bluetoothSerial) {
+      // @ts-ignore
+      window.bluetoothSerial.subscribe('\n', (data: string) => {
+        try {
+          const cleanData = data.trim();
+          console.log('Dados recebidos do HC-06:', cleanData);
+          
+          // Espera JSON no formato: {"rpm":5000,"acceleration":45}
+          const parsedData = JSON.parse(cleanData);
+          
+          setData(prev => {
+            const newRpm = parsedData.rpm || prev.rpm;
+            const newAcceleration = parsedData.acceleration || prev.acceleration;
+            
+            // Update trip stats
+            setTripStats(stats => ({
+              maxSpeed: Math.max(stats.maxSpeed, prev.speed),
+              speedSum: stats.speedSum + prev.speed,
+              rpmSum: stats.rpmSum + newRpm,
+              accelerationSum: stats.accelerationSum + newAcceleration,
+              dataPoints: stats.dataPoints + 1,
+              startTime: stats.startTime,
+            }));
+            
+            return {
+              ...prev,
+              rpm: newRpm,
+              acceleration: newAcceleration,
+            };
+          });
+        } catch (e) {
+          console.error('Erro ao fazer parse dos dados do HC-06:', e, 'Data:', data);
+        }
+      }, (error: any) => {
+        console.error('Erro na subscription do HC-06:', error);
       });
+    }
+    
+    // SIMULAÇÃO (apenas quando Bluetooth não estiver disponível)
+    const interval = setInterval(() => {
+      // @ts-ignore
+      if (!window.bluetoothSerial) {
+        setData(prev => {
+          const newRpm = Math.floor(Math.random() * 9000);
+          const newAcceleration = Math.floor(Math.random() * 100);
+          
+          setTripStats(stats => ({
+            maxSpeed: Math.max(stats.maxSpeed, prev.speed),
+            speedSum: stats.speedSum + prev.speed,
+            rpmSum: stats.rpmSum + newRpm,
+            accelerationSum: stats.accelerationSum + newAcceleration,
+            dataPoints: stats.dataPoints + 1,
+            startTime: stats.startTime,
+          }));
+          
+          return {
+            ...prev,
+            rpm: newRpm,
+            acceleration: newAcceleration,
+          };
+        });
+      }
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      // @ts-ignore
+      if (window.bluetoothSerial) {
+        // @ts-ignore
+        window.bluetoothSerial.unsubscribe();
+      }
+    };
   }, [isConnected]);
 
   // Enviar velocidade GPS para o Arduino via HC-06
@@ -169,20 +219,19 @@ export const useBluetoothConnection = () => {
     const interval = setInterval(() => {
       const speedData = JSON.stringify({ speed: data.speed });
       
-      // ENVIO REAL PARA HC-06 (descomentar quando testar com dispositivo real)
-      /*
+      // ENVIO REAL PARA HC-06
       // @ts-ignore
       if (window.bluetoothSerial) {
+        // @ts-ignore
         window.bluetoothSerial.write(
           speedData + '\n',
-          () => console.log('Velocidade enviada para Arduino:', speedData),
-          (error: any) => console.error('Erro ao enviar velocidade:', error)
+          () => console.log('Velocidade enviada para HC-06:', speedData),
+          (error: any) => console.error('Erro ao enviar velocidade para HC-06:', error)
         );
+      } else {
+        // SIMULAÇÃO (quando Bluetooth não estiver disponível)
+        console.log('Enviando velocidade para Arduino:', speedData);
       }
-      */
-      
-      // SIMULAÇÃO (remover quando usar Bluetooth real)
-      console.log('Enviando velocidade para Arduino:', speedData);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -206,92 +255,63 @@ export const useBluetoothConnection = () => {
     
     try {
       // CONEXÃO COM HC-06 (Bluetooth Classic)
-      // Descomentar quando testar com HC-06 real
-      
-      /*
       // @ts-ignore - cordova-plugin-bluetooth-serial
       const bluetoothSerial = window.bluetoothSerial;
       
-      if (!bluetoothSerial) {
-        throw new Error('Bluetooth Serial não disponível');
-      }
-      
-      // 1. Verificar se Bluetooth está habilitado
-      const isEnabled = await new Promise((resolve) => {
-        bluetoothSerial.isEnabled(
-          () => resolve(true),
-          () => resolve(false)
-        );
-      });
-      
-      if (!isEnabled) {
-        // Pedir para habilitar Bluetooth
-        await new Promise((resolve, reject) => {
-          bluetoothSerial.enable(resolve, reject);
+      if (bluetoothSerial) {
+        // 1. Verificar se Bluetooth está habilitado
+        const isEnabled = await new Promise((resolve) => {
+          bluetoothSerial.isEnabled(
+            () => resolve(true),
+            () => resolve(false)
+          );
         });
-      }
-      
-      // 2. Listar dispositivos pareados
-      const devices = await new Promise((resolve, reject) => {
-        bluetoothSerial.list(resolve, reject);
-      });
-      
-      // 3. Procurar HC-06 na lista (ajuste o nome se necessário)
-      const hc06 = devices.find((device: any) => 
-        device.name.includes('HC-06') || device.name.includes('HC-05')
-      );
-      
-      if (!hc06) {
-        throw new Error('HC-06 não encontrado. Pareie o dispositivo primeiro nas configurações do celular.');
-      }
-      
-      // 4. Conectar ao HC-06
-      await new Promise((resolve, reject) => {
-        bluetoothSerial.connect(
-          hc06.address,
-          () => {
-            console.log('Conectado ao HC-06:', hc06.name);
-            resolve(true);
-          },
-          (error: any) => {
-            console.error('Erro ao conectar:', error);
-            reject(error);
-          }
-        );
-      });
-      
-      // 5. Configurar leitura de dados
-      bluetoothSerial.subscribe('\n', (data: string) => {
-        try {
-          // Remove espaços em branco
-          const cleanData = data.trim();
-          
-          // Tentar fazer parse do JSON
-          const parsedData = JSON.parse(cleanData);
-          
-          setData(prev => ({
-            ...prev,
-            rpm: parsedData.rpm || prev.rpm,
-            acceleration: parsedData.acceleration || prev.acceleration,
-          }));
-        } catch (e) {
-          console.error('Erro ao fazer parse do JSON:', e, 'Data:', data);
+        
+        if (!isEnabled) {
+          // Pedir para habilitar Bluetooth
+          await new Promise((resolve, reject) => {
+            bluetoothSerial.enable(resolve, reject);
+          });
         }
-      }, (error: any) => {
-        console.error('Erro na subscription:', error);
-      });
-      
-      // 6. Callback quando desconectar
-      bluetoothSerial.subscribeRawData((data: any) => {
-        console.log('Dados recebidos (raw):', data);
-      }, (error: any) => {
-        console.error('Desconectado:', error);
-        setIsConnected(false);
-      });
-      */
-      
-      // SIMULAÇÃO (remover quando usar Bluetooth real)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // 2. Listar dispositivos pareados
+        const devices = await new Promise((resolve, reject) => {
+          bluetoothSerial.list(resolve, reject);
+        });
+        
+        // 3. Procurar HC-06 na lista
+        // @ts-ignore
+        const hc06 = devices.find((device: any) => 
+          device.name.includes('HC-06') || 
+          device.name.includes('HC-05') ||
+          device.name.includes('HC')
+        );
+        
+        if (!hc06) {
+          throw new Error('HC-06 não encontrado. Pareie o dispositivo primeiro nas configurações do celular.');
+        }
+        
+        // 4. Conectar ao HC-06
+        await new Promise((resolve, reject) => {
+          bluetoothSerial.connect(
+            hc06.address,
+            () => {
+              console.log('Conectado ao HC-06:', hc06.name);
+              resolve(true);
+            },
+            (error: any) => {
+              console.error('Erro ao conectar:', error);
+              reject(error);
+            }
+          );
+        });
+        
+        console.log('HC-06 conectado com sucesso!');
+      } else {
+        // SIMULAÇÃO (quando plugin não estiver disponível)
+        console.log('Plugin Bluetooth Serial não disponível, usando simulação');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
       
       setIsConnected(true);
       
